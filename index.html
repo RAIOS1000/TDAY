@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T.DAY Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #080808;
+  --white: #f5f0e8;
+  --red: #e8200a;
+  --gold: #f5d500;
+  --dim: #1a1a1a;
+  --mid: #2a2a2a;
+  --muted: #666;
+  --green: #4a8c5c;
+  --blue: #00c8ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--black); color:var(--white); font-family:'Barlow',sans-serif; }
+
+/* NAV */
+nav {
+  display:flex; gap:0; border-bottom:1px solid #1a1a1a;
+  position:sticky; top:0; z-index:100; background:var(--black);
+}
+.nav-btn {
+  flex:1; padding:18px 10px; text-align:center;
+  font-family:'Barlow Condensed',sans-serif; font-size:12px;
+  letter-spacing:3px; text-transform:uppercase; color:var(--muted);
+  cursor:pointer; border:none; background:none;
+  border-bottom:2px solid transparent; transition:all .2s;
+}
+.nav-btn:hover { color:var(--white); }
+.nav-btn.active { color:var(--red); border-bottom-color:var(--red); }
+
+/* PAGES */
+.page { display:none; }
+.page.active { display:block; }
+
+/* ── PAGE 1: COVERS ── */
+.covers-header {
+  padding:60px 40px 40px;
+  border-bottom:1px solid #1a1a1a;
+}
+.covers-header h1 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(50px,10vw,100px);
+  line-height:.9; letter-spacing:2px;
+}
+.covers-header h1 span { color:var(--red); }
+.covers-header p { margin-top:16px; color:var(--muted); font-size:13px; letter-spacing:1px; }
+
+.covers-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:2px; padding:2px;
+}
+
+.cover-card {
+  position:relative; aspect-ratio:1; cursor:pointer;
+  overflow:hidden; background:var(--dim);
+}
+
+.cover-art {
+  width:100%; height:100%; display:flex;
+  align-items:center; justify-content:center;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:80px; letter-spacing:2px;
+  transition:transform .4s ease;
+  position:relative; overflow:hidden;
+}
+.cover-card:hover .cover-art { transform:scale(1.04); }
+
+/* individual cover styles */
+.c1 { background:radial-gradient(ellipse at 50% 70%, #1a0800, #000); color:#ff3a00; text-shadow:0 0 40px #ff3a0088; }
+.c2 { background:linear-gradient(135deg,#000814,#001a2e); color:#00c8ff; text-shadow:0 0 30px #00c8ff66; }
+.c3 { background:radial-gradient(ellipse at 50% 40%,#0f0f0f,#050505); color:#f5d500; text-shadow:0 0 30px #f5d50066; }
+.c4 { background:radial-gradient(ellipse at 50% 45%,#0d1a14,#060d09); color:#6ab882; text-shadow:0 0 30px #6ab88266; }
+.c5 { background:linear-gradient(135deg,#0a0a0a,#111); color:#e8200a; text-shadow:0 0 30px #e8200a66; }
+.c6 { background:linear-gradient(180deg,#0a0a12,#080502); color:#ff8c42; text-shadow:0 0 30px #ff8c4266; }
+.c7 { background:radial-gradient(ellipse at 40% 40%,#0e0e14,#050508); color:#8080cc; text-shadow:0 0 30px #8080cc66; }
+.c8 { background:linear-gradient(135deg,#080808,#0f0e08); color:#c8a800; text-shadow:0 0 30px #c8a80066; }
+.c9 { background:linear-gradient(180deg,#160a0a,#000); color:#ff2200; text-shadow:0 0 30px #ff220066; }
+.c10 { background:radial-gradient(ellipse at 50% 50%,#141008,#030200); color:#f5d500; text-shadow:0 0 40px #f5d50099; }
+
+.cover-overlay {
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.88);
+  opacity:0; transition:opacity .3s ease;
+  display:flex; flex-direction:column;
+  padding:24px; overflow-y:auto;
+}
+.cover-card:hover .cover-overlay,
+.cover-card.open .cover-overlay { opacity:1; }
+
+.overlay-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px; letter-spacing:2px;
+  color:var(--white); margin-bottom:4px;
+}
+.overlay-sub {
+  font-size:10px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--red);
+  margin-bottom:16px;
+}
+.track-list { display:flex; flex-direction:column; gap:8px; }
+.track-item {
+  display:flex; gap:10px; align-items:flex-start;
+}
+.track-num {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:13px; color:var(--muted); width:18px; flex-shrink:0;
+  padding-top:1px;
+}
+.track-info { flex:1; }
+.track-name {
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:600; font-size:13px; color:var(--white);
+  line-height:1.2;
+}
+.track-artist { font-size:11px; color:var(--muted); margin-top:1px; }
+
+.cover-label {
+  position:absolute; bottom:14px; left:14px; right:14px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px; font-weight:700; letter-spacing:1px;
+  color:var(--white); pointer-events:none;
+  transition:opacity .3s;
+}
+.cover-card:hover .cover-label { opacity:0; }
+.cover-day-tag {
+  position:absolute; top:14px; left:14px;
+  font-size:10px; letter-spacing:3px;
+  text-transform:uppercase; color:rgba(255,255,255,.4);
+  font-family:'Barlow Condensed',sans-serif;
+  pointer-events:none;
+}
+
+/* ── PAGE 2: DASHBOARD ── */
+.dash-header {
+  padding:50px 40px 30px;
+  border-bottom:1px solid #1a1a1a;
+  display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:20px;
+}
+.dash-header h1 {
+  font-family:'Bebas Neue',sans-serif; font-size:60px; line-height:.9;
+}
+.dash-header h1 span { color:var(--gold); }
+.badge {
+  background:var(--dim); border:1px solid #333;
+  padding:6px 14px; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; color:var(--muted);
+}
+.badge strong { color:var(--gold); }
+
+.dash-stats {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:2px; padding:2px 2px 0;
+}
+.stat-card {
+  background:var(--dim); padding:28px 24px;
+}
+.stat-card .s-label {
+  font-size:10px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--muted); margin-bottom:8px;
+}
+.stat-card .s-val {
+  font-family:'Bebas Neue',sans-serif; font-size:46px;
+  line-height:1; color:var(--white);
+}
+.stat-card .s-val.gold { color:var(--gold); }
+.stat-card .s-val.red { color:var(--red); }
+.stat-card .s-val.blue { color:var(--blue); }
+.stat-card .s-val.green { color:var(--green); }
+.stat-card .s-sub { font-size:11px; color:var(--muted); margin-top:6px; }
+
+.dash-main { padding:40px; display:grid; grid-template-columns:1.4fr 1fr; gap:30px; }
+@media(max-width:700px){ .dash-main { grid-template-columns:1fr; } }
+
+.dash-section h2 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:13px; letter-spacing:4px; text-transform:uppercase;
+  color:var(--muted); margin-bottom:16px;
+  display:flex; align-items:center; gap:12px;
+}
+.dash-section h2::after { content:''; flex:1; height:1px; background:#1a1a1a; }
+
+/* Playlist performance table */
+.perf-table { width:100%; border-collapse:collapse; }
+.perf-table th {
+  font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--muted); text-align:left; padding:8px 0;
+  border-bottom:1px solid #1a1a1a;
+}
+.perf-table td { padding:12px 0; border-bottom:1px solid #111; vertical-align:middle; }
+.perf-table tr:last-child td { border:none; }
+.pl-name {
+  font-family:'Barlow Condensed',sans-serif; font-weight:600;
+  font-size:14px; color:var(--white);
+}
+.pl-day { font-size:10px; color:var(--red); letter-spacing:1px; margin-top:2px; }
+.bar-wrap { width:100%; background:#111; height:4px; border-radius:0; position:relative; }
+.bar-fill { height:4px; background:var(--red); transition:width 1s ease; }
+.plays-num {
+  font-family:'Bebas Neue',sans-serif; font-size:20px;
+  color:var(--white); text-align:right; white-space:nowrap;
+}
+.dl-num { font-size:12px; color:var(--muted); text-align:right; white-space:nowrap; }
+
+/* Mini chart */
+.chart-wrap { position:relative; height:160px; margin-top:8px; }
+.chart-svg { width:100%; height:100%; }
+
+/* Top tracks */
+.top-track {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0; border-bottom:1px solid #111;
+}
+.top-track:last-child { border:none; }
+.tt-rank {
+  font-family:'Bebas Neue',sans-serif; font-size:22px;
+  color:var(--muted); width:28px; flex-shrink:0;
+}
+.tt-rank.gold { color:var(--gold); }
+.tt-info { flex:1; }
+.tt-name { font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:14px; }
+.tt-artist { font-size:11px; color:var(--muted); margin-top:2px; }
+.tt-plays { font-family:'Bebas Neue',sans-serif; font-size:20px; color:var(--white); }
+
+/* Notice */
+.api-notice {
+  margin:0 40px 40px;
+  background:var(--dim); border-left:3px solid var(--gold);
+  padding:16px 20px;
+}
+.api-notice p { font-size:12px; color:var(--muted); line-height:1.6; }
+.api-notice strong { color:var(--gold); }
+
+/* ── PAGE 3: MONETIZATION ── */
+.mono-header {
+  padding:60px 40px 40px;
+  border-bottom:1px solid #1a1a1a;
+}
+.mono-header h1 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(40px,8vw,80px);
+  line-height:.9; color:var(--gold);
+}
+.mono-header h1 span { color:var(--white); }
+.mono-header p { margin-top:16px; font-size:14px; color:var(--muted); max-width:600px; line-height:1.6; }
+
+.mono-content { padding:40px; }
+
+.mono-block { margin-bottom:50px; }
+.mono-block h2 {
+  font-family:'Bebas Neue',sans-serif; font-size:32px;
+  color:var(--white); margin-bottom:4px;
+  display:flex; align-items:center; gap:12px;
+}
+.mono-block h2 .icon { font-size:24px; }
+.mono-block .subtitle {
+  font-size:12px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--muted); margin-bottom:20px;
+}
+
+.revenue-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:2px; margin-bottom:30px;
+}
+.rev-card {
+  background:var(--dim); padding:24px;
+  border-top:3px solid transparent;
+}
+.rev-card.gold-top { border-top-color:var(--gold); }
+.rev-card.red-top { border-top-color:var(--red); }
+.rev-card.green-top { border-top-color:var(--green); }
+.rev-card.blue-top { border-top-color:var(--blue); }
+.rev-card h3 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:16px; letter-spacing:1px; margin-bottom:6px;
+}
+.rev-card .pot {
+  font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--gold);
+  margin-bottom:10px;
+}
+.rev-card p { font-size:12px; color:var(--muted); line-height:1.6; }
+.rev-card .cost {
+  margin-top:10px; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase;
+}
+.rev-card .cost.free { color:var(--green); }
+.rev-card .cost.low { color:var(--gold); }
+
+.step-list { display:flex; flex-direction:column; gap:0; }
+.step-item {
+  display:flex; gap:20px; padding:20px 0;
+  border-bottom:1px solid #1a1a1a;
+}
+.step-item:last-child { border:none; }
+.step-num {
+  font-family:'Bebas Neue',sans-serif; font-size:42px;
+  color:var(--red); line-height:1; width:48px; flex-shrink:0;
+}
+.step-body h3 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:18px; margin-bottom:6px;
+}
+.step-body p { font-size:13px; color:var(--muted); line-height:1.6; }
+.step-body .tag {
+  display:inline-block; margin-top:8px;
+  font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  padding:3px 8px; border:1px solid #333; color:var(--muted);
+}
+.step-body .tag.free { border-color:var(--green); color:var(--green); }
+.step-body .tag.fast { border-color:var(--gold); color:var(--gold); }
+
+.timeline-row {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:2px; margin-top:20px;
+}
+@media(max-width:600px){ .timeline-row { grid-template-columns:1fr 1fr; } }
+.tl-card {
+  background:var(--dim); padding:20px;
+  border-top:2px solid var(--red);
+}
+.tl-card .period {
+  font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--red);
+}
+.tl-card h4 {
+  font-family:'Barlow Condensed',sans-serif; font-weight:700;
+  font-size:14px; margin:6px 0;
+}
+.tl-card p { font-size:11px; color:var(--muted); line-height:1.5; }
+.tl-card .earn {
+  margin-top:10px; font-family:'Bebas Neue',sans-serif;
+  font-size:20px; color:var(--gold);
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <button class="nav-btn active" onclick="showPage('covers',this)">🎵 Playlists</button>
+  <button class="nav-btn" onclick="showPage('dashboard',this)">📊 Dashboard</button>
+  <button class="nav-btn" onclick="showPage('monetize',this)">💰 Monetizar</button>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     PAGE 1 — COVERS INTERATIVAS
+══════════════════════════════════════════ -->
+<div class="page active" id="page-covers">
+  <div class="covers-header">
+    <h1>T<span>.</span>DAY<br>Playlists</h1>
+    <p>Passe o mouse ou toque na capa para ver as músicas e artistas de cada playlist</p>
+  </div>
+
+  <div class="covers-grid">
+
+    <!-- D1 -->
+    <div class="cover-card">
+      <div class="cover-art c1">01</div>
+      <span class="cover-day-tag">Dia 01</span>
+      <div class="cover-label">Beast Mode Ignition</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Beast Mode Ignition</div>
+        <div class="overlay-sub">Dia 01 — Força máxima</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Till I Collapse</div><div class="track-artist">Eminem ft. Nate Dogg</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Stronger</div><div class="track-artist">Kanye West</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Power</div><div class="track-artist">Kanye West</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Thunderstruck</div><div class="track-artist">AC/DC</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Lose Yourself</div><div class="track-artist">Eminem</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Can't Hold Us</div><div class="track-artist">Macklemore & Ryan Lewis</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Killing In The Name</div><div class="track-artist">Rage Against the Machine</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Remember the Name</div><div class="track-artist">Fort Minor</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Warrior</div><div class="track-artist">Disturbed</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Eye of the Tiger</div><div class="track-artist">Survivor</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D2 -->
+    <div class="cover-card">
+      <div class="cover-art c2">02</div>
+      <span class="cover-day-tag">Dia 02</span>
+      <div class="cover-label">Cardio Fire Run</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Cardio Fire Run</div>
+        <div class="overlay-sub">Dia 02 — Corrida & HIIT</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Blinding Lights</div><div class="track-artist">The Weeknd</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Physical</div><div class="track-artist">Dua Lipa</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Don't Stop Me Now</div><div class="track-artist">Queen</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Levels</div><div class="track-artist">Avicii</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Run the World (Girls)</div><div class="track-artist">Beyoncé</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Started From the Bottom</div><div class="track-artist">Drake</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Titanium</div><div class="track-artist">David Guetta ft. Sia</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">On Top of the World</div><div class="track-artist">Imagine Dragons</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Wake Me Up</div><div class="track-artist">Avicii</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Run Boy Run</div><div class="track-artist">Woodkid</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D3 -->
+    <div class="cover-card">
+      <div class="cover-art c3">03</div>
+      <span class="cover-day-tag">Dia 03</span>
+      <div class="cover-label">Game Day Hype</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Game Day Hype</div>
+        <div class="overlay-sub">Dia 03 — Esportes coletivos</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">All I Do Is Win</div><div class="track-artist">DJ Khaled ft. T-Pain</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Started</div><div class="track-artist">Iggy Azalea</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">We Will Rock You</div><div class="track-artist">Queen</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Jump Around</div><div class="track-artist">House of Pain</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Champions</div><div class="track-artist">Kanye West, Gucci Mane</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Ante Up</div><div class="track-artist">M.O.P.</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Roar</div><div class="track-artist">Katy Perry</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Hall of Fame</div><div class="track-artist">The Script ft. will.i.am</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Whatever It Takes</div><div class="track-artist">Imagine Dragons</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Kickstart My Heart</div><div class="track-artist">Mötley Crüe</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D4 -->
+    <div class="cover-card">
+      <div class="cover-art c4">04</div>
+      <span class="cover-day-tag">Dia 04</span>
+      <div class="cover-label">Active Recovery Flow</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Active Recovery Flow</div>
+        <div class="overlay-sub">Dia 04 — Alongamento & Mobilidade</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Holocene</div><div class="track-artist">Bon Iver</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Intro</div><div class="track-artist">The xx</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Motion Picture Soundtrack</div><div class="track-artist">Radiohead</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Float</div><div class="track-artist">Gramatik</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Breathe (2 AM)</div><div class="track-artist">Anna Nalick</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Slow Burn</div><div class="track-artist">Kacey Musgraves</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Gymnopédie No.1</div><div class="track-artist">Erik Satie</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Re: Stacks</div><div class="track-artist">Bon Iver</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Such Great Heights</div><div class="track-artist">Iron & Wine</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Lua</div><div class="track-artist">Bright Eyes</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D5 -->
+    <div class="cover-card">
+      <div class="cover-art c5">05</div>
+      <span class="cover-day-tag">Dia 05</span>
+      <div class="cover-label">Domination Mid-Week</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Domination Mid-Week</div>
+        <div class="overlay-sub">Dia 05 — Musculação pesada</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">HUMBLE.</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">DNA.</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Sicko Mode</div><div class="track-artist">Travis Scott</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">God's Plan</div><div class="track-artist">Drake</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">INDUSTRY BABY</div><div class="track-artist">Lil Nas X ft. Jack Harlow</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Mnike</div><div class="track-artist">Tyler ICU ft. Tumelo.za</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Savage</div><div class="track-artist">Megan Thee Stallion</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">No Role Modelz</div><div class="track-artist">J. Cole</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Mask Off</div><div class="track-artist">Future</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">XO Tour Llif3</div><div class="track-artist">Lil Uzi Vert</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D6 -->
+    <div class="cover-card">
+      <div class="cover-art c6">06</div>
+      <span class="cover-day-tag">Dia 06</span>
+      <div class="cover-label">Weekend Warrior</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Weekend Warrior</div>
+        <div class="overlay-sub">Dia 06 — Outdoor & Crossfit</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Seven Nation Army</div><div class="track-artist">The White Stripes</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Welcome to the Jungle</div><div class="track-artist">Guns N' Roses</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Uprising</div><div class="track-artist">Muse</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Run</div><div class="track-artist">Foo Fighters</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Fuel</div><div class="track-artist">Metallica</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">In One Ear</div><div class="track-artist">Cage the Elephant</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Radioactive</div><div class="track-artist">Imagine Dragons</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Knights of Cydonia</div><div class="track-artist">Muse</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Enter Sandman</div><div class="track-artist">Metallica</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Back in Black</div><div class="track-artist">AC/DC</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D7 -->
+    <div class="cover-card">
+      <div class="cover-art c7">07</div>
+      <span class="cover-day-tag">Dia 07</span>
+      <div class="cover-label">Sunday Grind Mentality</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Sunday Grind Mentality</div>
+        <div class="overlay-sub">Dia 07 — Foco & Disciplina</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Alright</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Work Hard, Play Hard</div><div class="track-artist">Wiz Khalifa</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Pursuit of Happiness</div><div class="track-artist">Kid Cudi</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Ultralight Beam</div><div class="track-artist">Kanye West</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Legacy</div><div class="track-artist">Jay-Z</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Blessings</div><div class="track-artist">Big Sean ft. Drake</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Glory</div><div class="track-artist">Jay-Z ft. Blue Ivy</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">N95</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">The Heart Part 5</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Sing About Me</div><div class="track-artist">Kendrick Lamar</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D8 -->
+    <div class="cover-card">
+      <div class="cover-art c8">08</div>
+      <span class="cover-day-tag">Dia 08</span>
+      <div class="cover-label">Champion's Blueprint</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Champion's Blueprint</div>
+        <div class="overlay-sub">Dia 08 — Elite performance</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Rocky (Fanfare for Rocky)</div><div class="track-artist">Bill Conti</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Gonna Fly Now</div><div class="track-artist">Bill Conti</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Victory</div><div class="track-artist">Diddy ft. Notorious B.I.G.</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Greatest</div><div class="track-artist">Sia</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">You Were Meant for Me</div><div class="track-artist">Hans Zimmer</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Now We Are Free</div><div class="track-artist">Hans Zimmer</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Man of Steel Suite</div><div class="track-artist">Hans Zimmer</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Unstoppable</div><div class="track-artist">Sia</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Fight Song</div><div class="track-artist">Rachel Platten</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">This Is Me</div><div class="track-artist">Keala Settle</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D9 -->
+    <div class="cover-card">
+      <div class="cover-art c9">09</div>
+      <span class="cover-day-tag">Dia 09</span>
+      <div class="cover-label">Final Push</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">Final Push — No Days Off</div>
+        <div class="overlay-sub">Dia 09 — Antecipação máxima</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Not Afraid</div><div class="track-artist">Eminem</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Believer</div><div class="track-artist">Imagine Dragons</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Thunderclouds</div><div class="track-artist">LSD ft. Sia, Diplo</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">Warriors</div><div class="track-artist">Imagine Dragons</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">Rise</div><div class="track-artist">Katy Perry</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Invincible</div><div class="track-artist">Hedley</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">In The End</div><div class="track-artist">Linkin Park</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Numb</div><div class="track-artist">Linkin Park</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Breaking the Habit</div><div class="track-artist">Linkin Park</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Castle of Glass</div><div class="track-artist">Linkin Park</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- D10 -->
+    <div class="cover-card">
+      <div class="cover-art c10">10</div>
+      <span class="cover-day-tag">Dia 10</span>
+      <div class="cover-label">T.DAY Ultimate Collection</div>
+      <div class="cover-overlay">
+        <div class="overlay-title">T.DAY Ultimate Collection</div>
+        <div class="overlay-sub">Dia 10 — Grand Finale</div>
+        <div class="track-list">
+          <div class="track-item"><span class="track-num">1</span><div class="track-info"><div class="track-name">Till I Collapse</div><div class="track-artist">Eminem</div></div></div>
+          <div class="track-item"><span class="track-num">2</span><div class="track-info"><div class="track-name">Stronger</div><div class="track-artist">Kanye West</div></div></div>
+          <div class="track-item"><span class="track-num">3</span><div class="track-info"><div class="track-name">Blinding Lights</div><div class="track-artist">The Weeknd</div></div></div>
+          <div class="track-item"><span class="track-num">4</span><div class="track-info"><div class="track-name">All I Do Is Win</div><div class="track-artist">DJ Khaled</div></div></div>
+          <div class="track-item"><span class="track-num">5</span><div class="track-info"><div class="track-name">HUMBLE.</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">6</span><div class="track-info"><div class="track-name">Seven Nation Army</div><div class="track-artist">The White Stripes</div></div></div>
+          <div class="track-item"><span class="track-num">7</span><div class="track-info"><div class="track-name">Alright</div><div class="track-artist">Kendrick Lamar</div></div></div>
+          <div class="track-item"><span class="track-num">8</span><div class="track-info"><div class="track-name">Greatest</div><div class="track-artist">Sia</div></div></div>
+          <div class="track-item"><span class="track-num">9</span><div class="track-info"><div class="track-name">Warriors</div><div class="track-artist">Imagine Dragons</div></div></div>
+          <div class="track-item"><span class="track-num">10</span><div class="track-info"><div class="track-name">Eye of the Tiger</div><div class="track-artist">Survivor</div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 2 — DASHBOARD
+══════════════════════════════════════════ -->
+<div class="page" id="page-dashboard">
+  <div class="dash-header">
+    <h1>T.DAY<br><span>Analytics</span></h1>
+    <div>
+      <div class="badge">Dados: <strong>Simulados</strong> — conecte Spotify for Artists para dados reais</div>
+    </div>
+  </div>
+
+  <div class="dash-stats">
+    <div class="stat-card"><div class="s-label">Total de plays</div><div class="s-val gold">248K</div><div class="s-sub">+18% vs semana anterior</div></div>
+    <div class="stat-card"><div class="s-label">Seguidores das playlists</div><div class="s-val">14.2K</div><div class="s-sub">Em 10 dias de campanha</div></div>
+    <div class="stat-card"><div class="s-label">Saves totais</div><div class="s-val red">9.8K</div><div class="s-sub">Taxa de save: 3.9%</div></div>
+    <div class="stat-card"><div class="s-label">Ouvintes únicos</div><div class="s-val blue">62K</div><div class="s-sub">Público 25–50 anos</div></div>
+    <div class="stat-card"><div class="s-label">Shares</div><div class="s-val green">3.1K</div><div class="s-sub">Viral coefficient: 0.8</div></div>
+    <div class="stat-card"><div class="s-label">Tempo médio escuta</div><div class="s-val">38<span style="font-size:22px">min</span></div><div class="s-sub">Por sessão de treino</div></div>
+  </div>
+
+  <div class="api-notice">
+    <p><strong>Como ver dados reais:</strong> Acesse <strong>artists.spotify.com</strong> gratuitamente → registre seu perfil → vá em "Playlists" para ver plays, saves, alcance e dados demográficos reais de cada playlist que você criou.</p>
+  </div>
+
+  <div class="dash-main">
+    <div class="dash-section">
+      <h2>Performance por playlist</h2>
+      <table class="perf-table">
+        <thead>
+          <tr>
+            <th>Playlist</th>
+            <th style="width:120px">Plays</th>
+            <th style="width:80px;text-align:right">Saves</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="pl-name">Beast Mode Ignition</div><div class="pl-day">DIA 01</div><div class="bar-wrap"><div class="bar-fill" style="width:95%"></div></div></td>
+            <td class="plays-num">48.2K</td>
+            <td class="dl-num">1.9K</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Cardio Fire Run</div><div class="pl-day">DIA 02</div><div class="bar-wrap"><div class="bar-fill" style="width:82%"></div></div></td>
+            <td class="plays-num">40.1K</td>
+            <td class="dl-num">1.6K</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Game Day Hype</div><div class="pl-day">DIA 03</div><div class="bar-wrap"><div class="bar-fill" style="width:74%"></div></div></td>
+            <td class="plays-num">36.3K</td>
+            <td class="dl-num">1.2K</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Active Recovery Flow</div><div class="pl-day">DIA 04</div><div class="bar-wrap"><div class="bar-fill" style="width:88%"></div></div></td>
+            <td class="plays-num">43.1K</td>
+            <td class="dl-num">2.1K</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Domination Mid-Week</div><div class="pl-day">DIA 05</div><div class="bar-wrap"><div class="bar-fill" style="width:70%"></div></div></td>
+            <td class="plays-num">34.2K</td>
+            <td class="dl-num">980</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Weekend Warrior</div><div class="pl-day">DIA 06</div><div class="bar-wrap"><div class="bar-fill" style="width:65%"></div></div></td>
+            <td class="plays-num">31.8K</td>
+            <td class="dl-num">890</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Sunday Grind Mentality</div><div class="pl-day">DIA 07</div><div class="bar-wrap"><div class="bar-fill" style="width:60%"></div></div></td>
+            <td class="plays-num">14.3K</td>
+            <td class="dl-num">420</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Champion's Blueprint</div><div class="pl-day">DIA 08</div><div class="bar-wrap"><div class="bar-fill" style="width:55%"></div></div></td>
+            <td class="plays-num">—</td>
+            <td class="dl-num">—</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">Final Push</div><div class="pl-day">DIA 09</div><div class="bar-wrap"><div class="bar-fill" style="width:0%"></div></div></td>
+            <td class="plays-num">—</td>
+            <td class="dl-num">—</td>
+          </tr>
+          <tr>
+            <td><div class="pl-name">T.DAY Ultimate Collection</div><div class="pl-day">DIA 10</div><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:var(--gold)"></div></div></td>
+            <td class="plays-num" style="color:var(--gold)">—</td>
+            <td class="dl-num">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dash-section">
+      <h2>Top faixas</h2>
+      <div class="top-track">
+        <div class="tt-rank gold">1</div>
+        <div class="tt-info"><div class="tt-name">Till I Collapse</div><div class="tt-artist">Eminem</div></div>
+        <div class="tt-plays">12.4K</div>
+      </div>
+      <div class="top-track">
+        <div class="tt-rank">2</div>
+        <div class="tt-info"><div class="tt-name">Stronger</div><div class="tt-artist">Kanye West</div></div>
+        <div class="tt-plays">9.8K</div>
+      </div>
+      <div class="top-track">
+        <div class="tt-rank">3</div>
+        <div class="tt-info"><div class="tt-name">Blinding Lights</div><div class="tt-artist">The Weeknd</div></div>
+        <div class="tt-plays">8.2K</div>
+      </div>
+      <div class="top-track">
+        <div class="tt-rank">4</div>
+        <div class="tt-info"><div class="tt-name">Holocene</div><div class="tt-artist">Bon Iver</div></div>
+        <div class="tt-plays">7.6K</div>
+      </div>
+      <div class="top-track">
+        <div class="tt-rank">5</div>
+        <div class="tt-info"><div class="tt-name">HUMBLE.</div><div class="tt-artist">Kendrick Lamar</div></div>
+        <div class="tt-plays">6.9K</div>
+      </div>
+      <div class="top-track">
+        <div class="tt-rank">6</div>
+        <div class="tt-info"><div class="tt-name">Seven Nation Army</div><div class="tt-artist">The White Stripes</div></div>
+        <div class="tt-plays">6.1K</div>
+      </div>
+      <div class="top-track">
+        <div class="tt-rank">7</div>
+        <div class="tt-info"><div class="tt-name">Eye of the Tiger</div><div class="tt-artist">Survivor</div></div>
+        <div class="tt-plays">5.4K</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 3 — MONETIZAÇÃO
+══════════════════════════════════════════ -->
+<div class="page" id="page-monetize">
+  <div class="mono-header">
+    <h1><span>Como ganhar</span><br>dinheiro<br>com playlists</h1>
+    <p>Guia direto ao ponto + projeto de negócio para monetizar o T.DAY rápido, com custo zero ou mínimo.</p>
+  </div>
+
+  <div class="mono-content">
+
+    <!-- FONTES DE RECEITA -->
+    <div class="mono-block">
+      <h2><span class="icon">💰</span> Fontes de receita</h2>
+      <div class="subtitle">6 formas comprovadas — ordenadas por velocidade</div>
+      <div class="revenue-grid">
+        <div class="rev-card gold-top">
+          <h3>Playlist Placement</h3>
+          <div class="pot">R$ 500–5K/mês</div>
+          <p>Artistas e gravadoras pagam para ter músicas incluídas em playlists com audiência qualificada. Com 10K+ seguidores você já pode cobrar.</p>
+          <div class="cost free">✓ Custo zero</div>
+        </div>
+        <div class="rev-card red-top">
+          <h3>Parceria com marcas</h3>
+          <div class="pot">R$ 1K–20K/deal</div>
+          <p>Marcas de suplementos, academias, roupas esportivas e apps de treino pagam para aparecer na descrição da playlist, stories e posts.</p>
+          <div class="cost free">✓ Custo zero</div>
+        </div>
+        <div class="rev-card green-top">
+          <h3>Link na Bio / Afiliados</h3>
+          <div class="pot">R$ 300–3K/mês</div>
+          <p>Produtos de academia, proteínas, apps de treino via links de afiliado (Amazon, Hotmart, Monetizze). Cada venda gera comissão passiva.</p>
+          <div class="cost free">✓ Custo zero</div>
+        </div>
+        <div class="rev-card blue-top">
+          <h3>Consultoria de playlist</h3>
+          <div class="pot">R$ 200–800/hora</div>
+          <p>Vender o conhecimento do T.DAY como serviço. Criar playlists para academias, eventos esportivos, marcas e influenciadores.</p>
+          <div class="cost low">$ Baixo custo</div>
+        </div>
+        <div class="rev-card gold-top">
+          <h3>Curso / Infoproduto</h3>
+          <div class="pot">R$ 97–497/aluno</div>
+          <p>"Como criar playlists virais para academia" — vender o método T.DAY como curso digital. Plataformas: Hotmart, Kiwify (gratuitas).</p>
+          <div class="cost low">$ Baixo custo</div>
+        </div>
+        <div class="rev-card red-top">
+          <h3>Comunidade Premium</h3>
+          <div class="pot">R$ 47–97/mês por membro</div>
+          <p>Acesso antecipado às playlists, curadoria exclusiva, desafios mensais. Com 100 membros = R$ 5–10K recorrente todo mês.</p>
+          <div class="cost low">$ Baixo custo</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANO DE AÇÃO -->
+    <div class="mono-block">
+      <h2><span class="icon">🚀</span> Plano de ação — 30 dias</h2>
+      <div class="subtitle">Passo a passo para monetizar sem custo inicial</div>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Ative o Spotify for Artists (gratuito)</h3>
+            <p>Acesse artists.spotify.com, reivindique seu perfil, adicione bio e foto. Isso dá acesso aos dados reais de plays, seguidores e demografias. É o seu cartão de visita profissional.</p>
+            <span class="tag free">Gratuito</span> <span class="tag fast">1 hora</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Crie seu media kit T.DAY</h3>
+            <p>Um PDF de 1 página com: número de seguidores, plays, perfil do público (25–50 anos, esporte), as 10 playlists e prints do engajamento. É com isso que você fecha deals com marcas.</p>
+            <span class="tag free">Canva gratuito</span> <span class="tag fast">2 horas</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Aborde 10 marcas de nicho por semana</h3>
+            <p>Suplementos (Integral Médica, Max Titanium), academias locais, apps (Strava, Nike Run), roupas esportivas. E-mail direto para o marketing. Taxa de resposta: 10–20%. Com 2 deals por mês já paga a operação.</p>
+            <span class="tag free">Gratuito</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Lance o serviço de Playlist Placement</h3>
+            <p>Crie uma página simples (Notion ou Beacons gratuitos) oferecendo inclusão de músicas nas playlists T.DAY. Preço: R$ 200–500 por faixa. Divulgue em grupos de artistas independentes no Facebook e WhatsApp.</p>
+            <span class="tag free">Gratuito</span> <span class="tag fast">Renda em 7 dias</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h3>Monte a comunidade premium (mês 2)</h3>
+            <p>Grupo fechado no WhatsApp ou Discord com curadoria semanal exclusiva, acesso antecipado, desafios de treino com playlist. Preço: R$ 47–97/mês. Meta inicial: 50 membros = R$ 2.350–4.850/mês recorrente.</p>
+            <span class="tag low">Hotmart/Kiwify gratuito</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <h3>Produza conteúdo diário com as playlists</h3>
+            <p>Reels, TikToks e stories usando as músicas das playlists como trilha. Crescimento orgânico de seguidores = aumento do valor cobrado por placement e parceria. Cada 10K de seguidores dobra seu poder de negociação.</p>
+            <span class="tag free">Gratuito</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE DE RECEITA -->
+    <div class="mono-block">
+      <h2><span class="icon">📈</span> Projeção de receita</h2>
+      <div class="subtitle">Estimativa conservadora para os primeiros 4 meses</div>
+      <div class="timeline-row">
+        <div class="tl-card">
+          <div class="period">Mês 1</div>
+          <h4>Fundação</h4>
+          <p>Spotify for Artists ativo. Primeiros placements vendidos. 1 parceria de marca fechada.</p>
+          <div class="earn">R$ 800–2K</div>
+        </div>
+        <div class="tl-card">
+          <div class="period">Mês 2</div>
+          <h4>Tração</h4>
+          <p>Comunidade premium lançada (50 membros). 3 parcerias ativas. Afiliados rodando.</p>
+          <div class="earn">R$ 3–6K</div>
+        </div>
+        <div class="tl-card">
+          <div class="period">Mês 3</div>
+          <h4>Escala</h4>
+          <p>10K+ seguidores. 5 deals de marca. 100 membros na comunidade. Placement em alta.</p>
+          <div class="earn">R$ 8–15K</div>
+        </div>
+        <div class="tl-card" style="border-top-color:var(--gold)">
+          <div class="period" style="color:var(--gold)">Mês 4+</div>
+          <h4>Recorrência</h4>
+          <p>Curso lançado. Comunidade crescendo. Marca T.DAY estabelecida no nicho esporte.</p>
+          <div class="earn">R$ 15–40K</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
